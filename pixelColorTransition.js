@@ -1,11 +1,5 @@
 'use strict'
 
-// TODO: instead of adding blank pixels to equalize resolution, zoom in or out
-// zoom in or out/add blank spaces to make resolutions the same
-
-// get images using File API
-// pixel manipulation using Canvas API
-
 const outputCanvas = document.getElementById('transition-output');
 const outputCanvasContext = outputCanvas.getContext('2d');
 
