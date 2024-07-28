@@ -6,15 +6,6 @@
 // get images using File API
 // pixel manipulation using Canvas API
 
-// function computeFrame(canvasContext) {
-//   canvasContext.drawImage(video, 0, 0, 450, 300);
-// }
-
-// function computeFrameMultipleTimes(canvasContext) {
-//   computeFrame(canvasContext);
-//   requestAnimationFrame(computeFrameMultipleTimes);
-// }
-
 const outputCanvas = document.getElementById('transition-output');
 const outputCanvasContext = outputCanvas.getContext('2d');
 
