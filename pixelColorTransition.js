@@ -98,10 +98,18 @@ async function convertImageFilesIntoImageObjects(imageFilesArr) {
 function convertImageFilesIntoImageDatas(imageObjects) {
   const imageDatas = [];
 
+  // in order to equalize dimensions, get the biggest dimensions, and use it
+  let biggestW = 1;
+  let biggestH = 1;
+  for (const {width, height} of imageObjects) {
+    if (width > biggestW) biggestW = width;
+    if (height > biggestH) biggestH = height;
+  }
+
   for (const imageObject of imageObjects) {
     dummyContext.clearRect(0, 0, dummyCanvas.width, dummyCanvas.height);
     dummyContext.drawImage(imageObject, 0, 0);
-    const dummyImageData = dummyContext.getImageData(0, 0, imageObject.width, imageObject.height);
+    const dummyImageData = dummyContext.getImageData(0, 0, biggestW, biggestH);
     imageDatas.push(dummyImageData);
   }
 
