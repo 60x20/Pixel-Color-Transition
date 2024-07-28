@@ -30,10 +30,12 @@ const dummyContext = dummyCanvas.getContext('2d', { willReadFrequently: true });
 
 const imageForm = document.getElementById('image-input-form');
 
-// TODO: might be obtained through user input
-const hertz = 60;
-// duration of 1 frame === 16.6ms
-const frameDurationMs = 1000 / hertz;
+// 60 used by default, also obtained through user input
+let hertz = 60;
+let frameDurationMs = calculateFrameDurationMs(hertz);
+function calculateFrameDurationMs(hertz) {
+  return 1000 / hertz;
+}
 
 let transitionDurationMs = 1000;
 
@@ -53,6 +55,9 @@ imageForm.addEventListener('submit', (e) => {
       imageFiles.push(input);
     } else if (name === 'duration') {
       transitionDurationMs = Number(input) * 1000;
+    } else if (name === 'hertz') {
+      hertz = Number(input);
+      frameDurationMs = calculateFrameDurationMs(hertz);
     }
   }
 
