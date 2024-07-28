@@ -29,20 +29,21 @@ dummyCanvas.height = dummyCanvasMaxLength;
 const dummyContext = dummyCanvas.getContext('2d', { willReadFrequently: true });
 
 const imageForm = document.getElementById('image-input-form');
+
+// TODO: might be obtained through user input
+const hertz = 60;
+// duration of 1 frame === 16.6ms
+const frameDurationMs = 1000 / hertz;
+
 let transitionDurationMs = 1000;
-let imageFiles = [];
-// image objects are used to get the dimensions
-let imageObjects = [];
-// imageDatas will be used to manipulate the pixels
-let imageDatas = [];
-let transitionImageDatas;
+
 const imageInTheBeginningRegex = /^image/;
+
 // extract image files into the imageFiles array
 imageForm.addEventListener('submit', (e) => {
   e.preventDefault();
   
-  // reset the array, otherwise it will get polluted
-  imageFiles = [];
+  const imageFiles = [];
 
   const formData = new FormData(e.currentTarget);
   
@@ -55,26 +56,27 @@ imageForm.addEventListener('submit', (e) => {
     }
   }
 
-  prepareTransition();
+  prepareTransition(imageFiles);
 })
 
-async function prepareTransition() {
+async function prepareTransition(imageFiles) {
   renderButton.removeEventListener('click', renderTransition);
   renderButton.classList.remove('display-none');
   renderButton.innerText = 'loading';
 
   // since order is important, awaits are used;
-  await convertImageFilesIntoImageObjects(imageFiles);
-  convertImageFilesIntoImageDatas(imageObjects);
-  createTransitionImageDatas(imageDatas);
+  // image objects are used to get the dimensions
+  const imageObjects = await convertImageFilesIntoImageObjects(imageFiles);
+  // imageDatas will be used to manipulate the pixels
+  const imageDatas = convertImageFilesIntoImageDatas(imageObjects);
+  transitionImageDatas = createTransitionImageDatas(imageDatas);
   
   renderButton.innerText = 'play';
   renderButton.addEventListener('click', renderTransition);
 }
 
 async function convertImageFilesIntoImageObjects(imageFilesArr) {
-  // reset so that it is not polluted
-  imageObjects = [];
+  const imageObjects = [];
 
   // image objects are created to get the dimensions
   for (const imageFile of imageFilesArr) {
@@ -93,11 +95,12 @@ async function convertImageFilesIntoImageObjects(imageFilesArr) {
     });
     imageObjects.push(imageObj);
   }
+
+  return imageObjects;
 }
 
 function convertImageFilesIntoImageDatas(imageObjects) {
-  // reset so that it is not polluted
-  imageDatas = [];
+  const imageDatas = [];
 
   for (const imageObject of imageObjects) {
     dummyContext.clearRect(0, 0, dummyCanvas.width, dummyCanvas.height);
@@ -105,12 +108,10 @@ function convertImageFilesIntoImageDatas(imageObjects) {
     const dummyImageData = dummyContext.getImageData(0, 0, imageObject.width, imageObject.height);
     imageDatas.push(dummyImageData);
   }
+
+  return imageDatas;
 }
 
-// TODO: might be obtained through user input
-const hertz = 60;
-// duration of 1 frame === 16.6ms
-const frameDurationMs = 1000 / hertz;
 function createTransitionImageDatas(imageDatasArr) {
   // if length is 1, duplicate that image, allowing a transition
   if (imageDatasArr.length === 1) imageDatasArr.push(imageDatasArr[0]);
@@ -120,7 +121,7 @@ function createTransitionImageDatas(imageDatasArr) {
   const framesPerTransition = Math.round(transitionDurationMs / frameDurationMs / transitionAmount) || 1;
   const totalFrames = framesPerTransition * transitionAmount;
 
-  transitionImageDatas = {
+  const transitionImageDatas = {
     initialFrame: imageDatasArr[0],
     allTransitionFrames: []
   }
@@ -182,8 +183,12 @@ function createTransitionImageDatas(imageDatasArr) {
 
     transitionImageDatas.allTransitionFrames.push(...transitionFrames);
   }
+
+  return transitionImageDatas;
 }
 
+// transitionImageDatas is global because render transition is used as an event handler
+let transitionImageDatas = {};
 function renderTransition() {
   const { initialFrame, allTransitionFrames } = transitionImageDatas;
 
