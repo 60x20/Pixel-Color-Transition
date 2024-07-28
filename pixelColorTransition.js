@@ -119,13 +119,15 @@ function createTransitionImageDatas(imageDatasArr) {
   const transitionAmount = imageDatasArr.length - 1;
   // minimum 1, otherwise some will be skipped
   const framesPerTransition = Math.round(transitionDurationMs / frameDurationMs / transitionAmount) || 1;
-  const totalFrames = framesPerTransition * transitionAmount;
 
   const transitionImageDatas = {
     initialFrame: imageDatasArr[0],
     allTransitionFrames: []
   }
   
+  // resolutions must be the same, used for creating imageData objects
+  const pixelDataLength = transitionImageDatas.initialFrame.data.length;;
+
   // in order for the transitions to be smooth, the first frames should not be the original images
   // instead they should be changed versions of them
   // select the first couple, then the second couple..., then the last couple ([0, 1], [1, 2], ..., [last - 1, last])
@@ -134,14 +136,14 @@ function createTransitionImageDatas(imageDatasArr) {
   for (let i = 0; i < lastImageDataIndex; i++) {
     const
       resolutionW = imageDatasArr[i].width,
-      resolutionH = imageDatasArr[i].height,
+      resolutionH = imageDatasArr[i].height
+    ;
+    const
       imageDataFrom = imageDatasArr[i].data,
       imageDataTo = imageDatasArr[i + 1].data
     ;
 
     const transitionFrames = [];
-    // resolutions must be the same
-    const pixelDataLength = imageDataFrom.length;
     for (let n = 0; n < framesPerTransition; n++) {
       const emptyPixelData = new Uint8ClampedArray(pixelDataLength);
       transitionFrames.push(new ImageData(emptyPixelData, resolutionW, resolutionH));
@@ -197,23 +199,20 @@ function renderTransition() {
   
   outputCanvasContext.putImageData(initialFrame, 0, 0);
 
-  const frameLength = allTransitionFrames.length;
-  let frameCounter = 0;
+  const totalFrames = allTransitionFrames.length;
   let frameIndex = 0; 
-
-  function requestAnimationFrameInterval() {
-    frameCounter++;
-
-    outputCanvasContext.putImageData(allTransitionFrames[frameIndex++], 0, 0);
-
-    if (frameCounter === frameLength) {
-      console.log('finished');
-    } else {
-      requestAnimationFrame(requestAnimationFrameInterval);
-    }
-  }
-
+  
   requestAnimationFrame(
     requestAnimationFrameInterval
   );
+
+  function requestAnimationFrameInterval() {
+    outputCanvasContext.putImageData(allTransitionFrames[frameIndex++], 0, 0);
+
+    if (frameIndex !== totalFrames) {
+      requestAnimationFrame(requestAnimationFrameInterval);
+    } else {
+      console.log('finished');
+    }
+  }
 }
