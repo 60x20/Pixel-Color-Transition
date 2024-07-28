@@ -1,0 +1,7 @@
+canvas {
+  display: block;
+}
+
+.display-none {
+  display: none !important;
+}
