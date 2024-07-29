@@ -59,7 +59,7 @@ async function prepareTransition(imageFiles) {
   // image objects are used to get the dimensions
   const imageObjects = await convertImageFilesIntoImageObjects(imageFiles);
   // imageDatas will be used to manipulate the pixels
-  const imageDatas = convertImageFilesIntoImageDatas(imageObjects);
+  const imageDatas = convertImageObjectsIntoImageDatas(imageObjects);
   transitionImageDatas = createTransitionImageDatas(imageDatas);
   
   renderButton.innerText = 'play';
@@ -90,7 +90,7 @@ async function convertImageFilesIntoImageObjects(imageFilesArr) {
   return imageObjects;
 }
 
-function convertImageFilesIntoImageDatas(imageObjects) {
+function convertImageObjectsIntoImageDatas(imageObjects) {
   const imageDatas = [];
 
   // in order to equalize dimensions, get the biggest dimensions, and use it
