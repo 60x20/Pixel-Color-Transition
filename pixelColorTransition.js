@@ -124,7 +124,7 @@ function createTransitionImageDatas(imageDatasArr) {
   }
   
   // resolutions must be the same, used for creating imageData objects
-  const pixelDataLength = transitionImageDatas.initialFrame.data.length;;
+  const pixelDataLength = transitionImageDatas.initialFrame.data.length;
 
   // in order for the transitions to be smooth, the first frames should not be the original images
   // instead they should be changed versions of them
