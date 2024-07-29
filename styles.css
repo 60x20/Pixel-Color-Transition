@@ -5,7 +5,8 @@ html, body {
 
 canvas {
   display: block;
-  width: 30%;
+  width: 90%;
+  margin: 1rem auto 0;
 }
 
 form {
