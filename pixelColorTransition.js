@@ -139,7 +139,7 @@ function createTransitionImageObjectCouples(imageObjects) {
       transitionCouples.push(transitionCouple);
     }
 
-    transitionImageObjects.allTransitionCouples.push(...transitionCouples);
+    transitionImageObjects.allTransitionCouples = transitionImageObjects.allTransitionCouples.concat(transitionCouples);
   }
   
   return transitionImageObjects;
