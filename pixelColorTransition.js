@@ -50,7 +50,7 @@ async function prepareTransition(imageFiles) {
   // image objects are used to get the dimensions, and will also be rendered onto the canvas
   const imageObjects = await convertImageFilesIntoImageObjects(imageFiles);
   equalizeImageObjectResolutions(imageObjects);
-  transitionImageObjects = createTransitionImageObjectCouplesUsingCanvas(imageObjects);
+  transitionImageObjects = createTransitionImageObjectCouples(imageObjects);
   
   renderButton.innerText = 'play';
   renderButton.addEventListener('click', renderTransition);
@@ -96,7 +96,7 @@ function equalizeImageObjectResolutions(imageObjects) {
 }
 
 // using transparency
-function createTransitionImageObjectCouplesUsingCanvas(imageObjects) {
+function createTransitionImageObjectCouples(imageObjects) {
   // if length is 1, duplicate that image, allowing a transition
   if (imageObjects.length === 1) imageObjects.push(imageObjects[0]);
 
