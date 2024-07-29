@@ -60,7 +60,7 @@ async function prepareTransition(imageFiles) {
   const imageObjects = await convertImageFilesIntoImageObjects(imageFiles);
   // imageDatas will be used to manipulate the pixels
   const imageDatas = convertImageObjectsIntoImageDatas(imageObjects);
-  transitionImageDatas = createTransitionImageDatas(imageDatas);
+  transitionImageDatas = await createTransitionImageDatasUsingCanvas(imageDatas);
   
   renderButton.innerText = 'play';
   renderButton.addEventListener('click', renderTransition);
@@ -115,7 +115,107 @@ function convertImageObjectsIntoImageDatas(imageObjects) {
   return imageDatas;
 }
 
-function createTransitionImageDatas(imageDatasArr) {
+// using transparency
+async function createTransitionImageDatasUsingCanvas(imageDatasArr) {
+  // if length is 1, duplicate that image, allowing a transition
+  if (imageDatasArr.length === 1) imageDatasArr.push(imageDatasArr[0]);
+  const transitionAmount = imageDatasArr.length - 1;
+  // minimum 1, otherwise some will be skipped
+  const framesPerTransition = Math.round(transitionDurationMs / frameDurationMs / transitionAmount) || 1;
+  // transparencies will change proportionately to this percentage
+  const changeInTransparency = 1 / framesPerTransition;
+
+  const transitionImageDatas = {
+    initialFrame: imageDatasArr[0],
+    allTransitionFrames: []
+  }
+
+  // resolutions must be the same, used for creating imageData objects
+  const 
+    dimensionW = transitionImageDatas.initialFrame.width,
+    dimensionH = transitionImageDatas.initialFrame.height
+  ;
+  
+  // in order for the transitions to be smooth, the first frames should not be the original images
+  // instead they should be gradually changed versions of them
+  // select the first couple, then the second couple..., then the last couple ([0, 1], [1, 2], ..., [last - 1, last])
+  const lastImageDataIndex = imageDatasArr.length - 1;
+  // create transition frames for each couple
+  for (let i = 0; i < lastImageDataIndex; i++) {
+    const
+      imageDataFrom = imageDatasArr[i],
+      imageDataTo = imageDatasArr[i + 1]
+    ;
+
+    // TODO: Try not converting imageObjects into imageData, hence there will be no need to convert them into bitmaps
+    const 
+      bitmapFrom = await createImageBitmap(imageDataFrom, 0, 0, dimensionW, dimensionH),
+      bitmapTo = await createImageBitmap(imageDataTo, 0, 0, dimensionW, dimensionH)
+    ;
+
+    const transitionFrames = [];
+
+    let changeTimes = 0;
+    for (let n = 0; n < framesPerTransition; n++) {
+      changeTimes++;
+      
+      const transparencyImageTo = changeInTransparency * changeTimes;
+      const transparencyImageFrom = 1 - transparencyImageTo;
+      
+      offScreenContext.clearRect(0, 0, offScreenCanvas.width, offScreenCanvas.height);
+
+      // render imageFrom
+      offScreenContext.globalAlpha = transparencyImageFrom;
+      offScreenContext.drawImage(bitmapFrom, 0, 0);
+      // render imageTo
+      offScreenContext.globalAlpha = transparencyImageTo;
+      offScreenContext.drawImage(bitmapTo, 0, 0);
+
+      const transitionImageData = offScreenContext.getImageData(0, 0, dimensionW, dimensionH);
+      transitionFrames.push(transitionImageData);
+    }
+
+    bitmapFrom.close();
+    bitmapTo.close();
+
+    transitionImageDatas.allTransitionFrames.push(...transitionFrames);
+  }
+  
+  return transitionImageDatas;
+}
+
+// transitionImageDatas is global because render transition is used as an event handler
+let transitionImageDatas = {};
+function renderTransition() {
+  const { initialFrame, allTransitionFrames } = transitionImageDatas;
+
+  outputCanvas.width = initialFrame.width;
+  outputCanvas.height = initialFrame.height;
+  
+  outputCanvasContext.putImageData(initialFrame, 0, 0);
+
+  const totalFrames = allTransitionFrames.length;
+  let frameIndex = 0; 
+  
+  requestAnimationFrame(
+    requestAnimationFrameInterval
+  );
+
+  function requestAnimationFrameInterval() {
+    outputCanvasContext.putImageData(allTransitionFrames[frameIndex++], 0, 0);
+
+    if (frameIndex !== totalFrames) {
+      requestAnimationFrame(requestAnimationFrameInterval);
+    } else {
+      console.log('finished');
+    }
+  }
+}
+
+
+// using pixel manipulation (abandoned because it was too slow)
+/*
+function createTransitionImageDatasPixelManipulation(imageDatasArr) {
   // if length is 1, duplicate that image, allowing a transition
   if (imageDatasArr.length === 1) imageDatasArr.push(imageDatasArr[0]);
 
@@ -191,31 +291,4 @@ function createTransitionImageDatas(imageDatasArr) {
 
   return transitionImageDatas;
 }
-
-// transitionImageDatas is global because render transition is used as an event handler
-let transitionImageDatas = {};
-function renderTransition() {
-  const { initialFrame, allTransitionFrames } = transitionImageDatas;
-
-  outputCanvas.width = initialFrame.width;
-  outputCanvas.height = initialFrame.height;
-  
-  outputCanvasContext.putImageData(initialFrame, 0, 0);
-
-  const totalFrames = allTransitionFrames.length;
-  let frameIndex = 0; 
-  
-  requestAnimationFrame(
-    requestAnimationFrameInterval
-  );
-
-  function requestAnimationFrameInterval() {
-    outputCanvasContext.putImageData(allTransitionFrames[frameIndex++], 0, 0);
-
-    if (frameIndex !== totalFrames) {
-      requestAnimationFrame(requestAnimationFrameInterval);
-    } else {
-      console.log('finished');
-    }
-  }
-}
+*/
