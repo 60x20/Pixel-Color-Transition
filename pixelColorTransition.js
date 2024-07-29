@@ -8,10 +8,10 @@ const renderButton = document.querySelector('#render-transition');
 // TODO: try using workers and OffscreenCanvas()
 // offScreen canvas for creating image data (not inserted into document at all)
 const offScreenCanvas = document.createElement('canvas');
-// canvas has big dimensions because otherwise big images will be displayed partially
-const offScreenCanvasMaxLength = 10000;
-offScreenCanvas.width = offScreenCanvasMaxLength;
-offScreenCanvas.height = offScreenCanvasMaxLength;
+// WARNING: the bigger the canvas is, the slower the rendering is
+// canvas dimensions will be set from the biggest image input dimensions
+offScreenCanvas.width = 1;
+offScreenCanvas.height = 1;
 const offScreenContext = offScreenCanvas.getContext('2d', { willReadFrequently: true });
 
 const imageForm = document.getElementById('image-input-form');
@@ -100,6 +100,10 @@ function convertImageObjectsIntoImageDatas(imageObjects) {
     if (width > biggestW) biggestW = width;
     if (height > biggestH) biggestH = height;
   }
+
+  // using just enought dimensions speeds up the rendering process
+  offScreenCanvas.width = biggestW;
+  offScreenCanvas.height = biggestH;
 
   for (const imageObject of imageObjects) {
     offScreenContext.clearRect(0, 0, offScreenCanvas.width, offScreenCanvas.height);
