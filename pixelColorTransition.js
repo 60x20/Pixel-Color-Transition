@@ -128,7 +128,7 @@ function createTransitionImageDatas(imageDatasArr) {
   const pixelDataLength = transitionImageDatas.initialFrame.data.length;
 
   // in order for the transitions to be smooth, the first frames should not be the original images
-  // instead they should be changed versions of them
+  // instead they should be gradually changed versions of them
   // select the first couple, then the second couple..., then the last couple ([0, 1], [1, 2], ..., [last - 1, last])
   const lastImageDataIndex = imageDatasArr.length - 1;
   // create transition frames for each couple
