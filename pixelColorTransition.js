@@ -5,13 +5,14 @@ const outputCanvasContext = outputCanvas.getContext('2d');
 
 const renderButton = document.querySelector('#render-transition');
 
-// dummy canvas for creating image data (not inserted into document at all)
-const dummyCanvas = document.createElement('canvas');
+// TODO: try using workers and OffscreenCanvas()
+// offScreen canvas for creating image data (not inserted into document at all)
+const offScreenCanvas = document.createElement('canvas');
 // canvas has big dimensions because otherwise big images will be displayed partially
-const dummyCanvasMaxLength = 10000;
-dummyCanvas.width = dummyCanvasMaxLength;
-dummyCanvas.height = dummyCanvasMaxLength;
-const dummyContext = dummyCanvas.getContext('2d', { willReadFrequently: true });
+const offScreenCanvasMaxLength = 10000;
+offScreenCanvas.width = offScreenCanvasMaxLength;
+offScreenCanvas.height = offScreenCanvasMaxLength;
+const offScreenContext = offScreenCanvas.getContext('2d', { willReadFrequently: true });
 
 const imageForm = document.getElementById('image-input-form');
 
@@ -101,10 +102,10 @@ function convertImageFilesIntoImageDatas(imageObjects) {
   }
 
   for (const imageObject of imageObjects) {
-    dummyContext.clearRect(0, 0, dummyCanvas.width, dummyCanvas.height);
-    dummyContext.drawImage(imageObject, 0, 0);
-    const dummyImageData = dummyContext.getImageData(0, 0, biggestW, biggestH);
-    imageDatas.push(dummyImageData);
+    offScreenContext.clearRect(0, 0, offScreenCanvas.width, offScreenCanvas.height);
+    offScreenContext.drawImage(imageObject, 0, 0);
+    const offScreenImageData = offScreenContext.getImageData(0, 0, biggestW, biggestH);
+    imageDatas.push(offScreenImageData);
   }
 
   return imageDatas;
