@@ -96,9 +96,10 @@ function convertImageObjectsIntoImageDatas(imageObjects) {
   // in order to equalize dimensions, get the biggest dimensions, and use it
   let biggestW = 1;
   let biggestH = 1;
-  for (const {width, height} of imageObjects) {
-    if (width > biggestW) biggestW = width;
-    if (height > biggestH) biggestH = height;
+  for (const {naturalWidth, naturalHeight} of imageObjects) {
+    if (naturalWidth > biggestW) biggestW = naturalWidth;
+    if (naturalHeight > biggestH) biggestH = naturalHeight;
+  }
   }
 
   // using just enought dimensions speeds up the rendering process
