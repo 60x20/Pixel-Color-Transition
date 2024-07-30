@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 const outputCanvas = document.getElementById('transition-output');
 const outputCanvasContext = outputCanvas.getContext('2d');
