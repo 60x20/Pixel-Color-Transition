@@ -9,7 +9,11 @@
 </head>
 <body>
   <form id="image-input-form">
-    <input type="file" class="image-input" name="image-files" required multiple accept="image/*" />
+    <label>
+      <!-- input[type="file"] has a block level label container, instead of itself being a block level element -->
+      <!-- so that the User Agent places the informative text correctly -->
+      <input type="file" class="image-input" name="image-files" required multiple accept="image/*" />
+    </label>
     <label>
       <span>duration(s):</span>
       <input type="number" class="number-input" inputmode="decimal" step=".1" name="duration" required value="5" min="0" max="1000" />

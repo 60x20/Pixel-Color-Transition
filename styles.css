@@ -17,7 +17,7 @@ form {
   gap: 1rem;
 }
 
-input[type="file"] {
+label:has(input[type="file"]) {
   /* making the element block level */
   width: 100%;
 }
