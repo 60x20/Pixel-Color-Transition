@@ -176,9 +176,8 @@ function renderTransition() {
   const totalFrames = allTransitionCouples.length;
   let frameIndex = 0; 
   
-  requestAnimationFrame(
-    requestAnimationFrameInterval
-  );
+  // allowing the initial frame to be seen with a delay
+  setTimeout(requestAnimationFrameInterval, 500);
 
   function requestAnimationFrameInterval() {
     renderTransitionCouple(allTransitionCouples[frameIndex++]);
