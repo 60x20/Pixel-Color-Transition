@@ -13,7 +13,7 @@ let frameDurationMs = calculateFrameDurationMs(hertz);
 function calculateFrameDurationMs(hertz) {
   return 1000 / hertz;
 }
-
+// 1000 used by default, also obtained through user input
 let transitionDurationMs = 1000;
 
 const imageInTheBeginningRegex = /^image/;
