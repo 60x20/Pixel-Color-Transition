@@ -57,27 +57,29 @@ async function prepareTransition(imageFiles) {
 }
 
 async function convertImageFilesIntoImageObjects(imageFilesArr) {
-  const imageObjects = [];
+  const imageObjectsPromises = [];
 
   // image objects are created to get the dimensions
   for (const imageFile of imageFilesArr) {
-    const fileAsDataURL = await new Promise((resolve) => {
+    const fileAsDataURLPromise = new Promise((resolve) => {
       const reader = new FileReader();
       reader.readAsDataURL(imageFile);
       reader.addEventListener('load', () => {
         resolve(reader.result);
       });
     });
-    const imageObj = new Image();
-    imageObj.src = fileAsDataURL;
-    // since loading the data into the image obj takes some time, we need to use load events, otherwise width and height are '0'
-    await new Promise((resolve) => {
-      imageObj.addEventListener('load', resolve);
+    const imageObjectsPromise = fileAsDataURLPromise.then((fileAsDataURL) => {
+      const imageObj = new Image();
+      imageObj.src = fileAsDataURL;
+      // since loading the data into the image obj takes some time, we need to use load events, otherwise width and height are '0'
+      return new Promise((resolve) => {
+        imageObj.addEventListener('load', () => resolve(imageObj));
+      });
     });
-    imageObjects.push(imageObj);
+    imageObjectsPromises.push(imageObjectsPromise);
   }
 
-  return imageObjects;
+  return await Promise.all(imageObjectsPromises).then((imageObjects) => imageObjects);
 }
 
 function equalizeImageObjectResolutions(imageObjects) {
